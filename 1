@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For My Valentine</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Dancing Script', cursive;
+            background-color: #fff0f3;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            text-align: center;
+            color: #d00000;
+        }
+        .container { 
+            background: white; 
+            padding: 2rem; 
+            border-radius: 30px; 
+            box-shadow: 0 15px 35px rgba(255, 77, 109, 0.2); 
+            max-width: 450px;
+            width: 90%;
+            border: 2px solid #ffb3c1;
+            margin: 20px;
+        }
+        h1 { font-size: 2.5rem; margin-bottom: 10px; }
+        p { font-size: 1.4rem; }
+        button {
+            font-family: 'Dancing Script', cursive;
+            background-color: #ff4d6d;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1.3rem;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+        button:hover { background-color: #ff758f; transform: scale(1.05); }
+        .hidden { display: none; }
+        .gift-box { font-size: 3rem; cursor: pointer; display: inline-block; margin: 10px; transition: 0.3s; }
+        .reveal-img { width: 100%; border-radius: 15px; margin-top: 15px; display: none; }
+        img.main-gif { width: 200px; border-radius: 20px; margin-bottom: 15px; }
+        input[type="text"] { 
+            font-family: 'Dancing Script', cursive;
+            padding: 10px; width: 80%; border: 2px solid #ff4d6d; border-radius: 15px; font-size: 1.2rem; text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="phase1" class="container">
+        <img class="main-gif" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHp1eHByZzR0bmRxcXN6emh6eXp6eXp6eXp6eXp6eXp6eXp6JnB0PWFjdGlvbiZjbT1n/KztT2c4u8mYYUiCi7W/giphy.gif">
+        <h1>Will you be my Valentine?</h1>
+        <button onclick="acceptValentine()">Yes!</button>
+        <button id="noBtn" onmouseover="moveNo()">No</button>
+    </div>
+
+    <div id="phase2" class="container hidden">
+        <h2>Pick your surprises...</h2>
+        <div id="giftsContainer">
+            <div class="gift-box" id="g1" onclick="openGift(1)">🎁</div>
+            <div class="gift-box" id="g2" onclick="openGift(2)">🎁</div>
+            <div class="gift-box" id="g3" onclick="openGift(3)">🎁</div>
+        </div>
+        <div id="giftDisplay">
+            <p id="giftText"></p>
+            <img id="giftGif" class="reveal-img" src="">
+        </div>
+        <button id="nextBtn" class="hidden" onclick="startQuestions()">Ask me something...</button>
+    </div>
+
+    <div id="phase3" class="container hidden">
+        <h2>A few playful questions...</h2>
+        <p id="questionText"></p>
+        <input type="text" id="answerInput" placeholder="Type here...">
+        <br><br>
+        <button onclick="nextQuestion()">Next Question</button>
+    </div>
+
+    <div id="final" class="container hidden">
+        <h1>Forever Yours ❤️</h1>
+        <p>I can't wait to see your smile in person.</p>
+        <img class="main-gif" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExYnJqZzVwZnd3ZmIwaGdzN2N6N3Z6Z3Z6Z3Z6Z3Z6Z3Z6Z3Z6JnB0PWFjdGlvbiZjbT1n/l41lTfux7u6v7Ue7K/giphy.gif">
+    </div>
+
+    <script>
+        let giftsOpened = 0;
+        let currentQ = 0;
+        const giftGifs = [
+            "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNzh6eGNidHExbm90eWJ0eWJ0eWJ0eWJ0eWJ0eWJ0eWJ0eWJ0JnB0PWFjdGlvbiZjbT1n/3o7TKoWXlo3M1nKSZ2/giphy.gif", // Dinner
+            "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNzh6eGNidHExbm90eWJ0eWJ0eWJ0eWJ0eWJ0eWJ0eWJ0eWJ0JnB0PWFjdGlvbiZjbT1n/l0HlIDW6q27jPInS0/giphy.gif", // Flowers
+            "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNzh6eGNidHExbm90eWJ0eWJ0eWJ0eWJ0eWJ0eWJ0eWJ0eWJ0JnB0PWFjdGlvbiZjbT1n/3oxHQp6UXNJupRPhC0/giphy.gif"  // Chocolate
+        ];
+        const msgs = ["A dreamy candlelit dinner!", "A bouquet of your favorites!", "The sweetest chocolates for the sweetest girl!"];
+        
+        const questions = [
+            "What's one thing I do that always makes you feel special?",
+            "What's the first thing you want to do when we see each other?",
+            "If we could run away for a weekend, where would you want us to go?",
+            "What's a song that always reminds you of us?"
+        ];
+
+        function moveNo() {
+            const btn = document.getElementById('noBtn');
+            const x = Math.random() * (window.innerWidth - btn.offsetWidth);
+            const y = Math.random() * (window.innerHeight - btn.offsetHeight);
+            btn.style.position = 'absolute';
+            btn.style.left = x + 'px';
+            btn.style.top = y + 'px';
+        }
+
+        function acceptValentine() {
+            document.getElementById('phase1').classList.add('hidden');
+            document.getElementById('phase2').classList.remove('hidden');
+        }
+
+        function openGift(num) {
+            const giftBtn = document.getElementById(`g${num}`);
+            if (giftBtn.style.opacity !== "0.3") {
+                giftBtn.style.opacity = "0.3";
+                giftBtn.innerHTML = "💖";
+                
+                document.getElementById('giftText').innerText = msgs[num-1];
+                const gifImg = document.getElementById('giftGif');
+                gifImg.src = giftGifs[num-1];
+                gifImg.style.display = "block";
+                
+                giftsOpened++;
+                if(giftsOpened === 3) {
+                    document.getElementById('nextBtn').classList.remove('hidden');
+                }
+            }
+        }
+
+        function startQuestions() {
+            document.getElementById('phase2').classList.add('hidden');
+            document.getElementById('phase3').classList.remove('hidden');
+            showQuestion();
+        }
+
+        function showQuestion() {
+            document.getElementById('questionText').innerText = questions[currentQ];
+            document.getElementById('answerInput').value = "";
+        }
+
+        function nextQuestion() {
+            currentQ++;
+            if(currentQ < questions.length) {
+                showQuestion();
+            } else {
+                document.getElementById('phase3').classList.add('hidden');
+                document.getElementById('final').classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
